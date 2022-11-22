@@ -1,6 +1,8 @@
 ﻿using DeliverITTestAPI.DTO;
 using DeliverITTestAPI.EFC;
+using DeliverITTestAPI.Interface;
 using DeliverITTestAPI.Model;
+using DeliverITTestAPI.Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,45 +14,30 @@ namespace DeliverITTestAPI.Controllers
     public class BillController : ControllerBase
     {
         private readonly ILogger<BillController> _logger;
-        private readonly DataContext _dbContext;
+        private readonly IBillService _billService;
 
-        public BillController(ILogger<BillController> logger, DataContext dbContext)
+        public BillController(ILogger<BillController> logger, IBillService billService)
         {
             _logger = logger;
-            _dbContext = dbContext;
+            _billService = billService;
         }
 
         [HttpPost]
         public async Task<ActionResult<InsertBillDTO>> InsertBill([FromBody] InsertBillDTO billDTO)
         {
-            try
-            {
-                Bill bill = new Bill(billDTO);
+            Bill bill = new Bill(billDTO);
 
-                _dbContext.Bills.Add(bill);
-                await _dbContext.SaveChangesAsync();
+            await _billService.InsertItem(bill);
 
-                return Ok(bill);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { Message = "Houve um problema ao inserir, favor tentar novamente" });
-            }
+            return Ok(bill);
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<InsertBillDTO>>> ListBills()
+        public async Task<ActionResult<List<Bill>>> ListBills()
         {
-            try
-            {
-                List<Bill> billList = await _dbContext.Bills.ToListAsync();
+            IList<Bill> billList = await _billService.GetAllItems();
 
-                return Ok(billList);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { Message = "Houve um problema ao buscar as contas, favor tentar novamente" });
-            }
+            return Ok(billList);
         }
     }
 }

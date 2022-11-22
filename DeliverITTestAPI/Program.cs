@@ -1,4 +1,6 @@
 using DeliverITTestAPI.EFC;
+using DeliverITTestAPI.Interface;
+using DeliverITTestAPI.Service;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +12,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<DataContext>(options => options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnectionString")));
+
+builder.Services.AddScoped<IBillService, BillService>();
 
 var app = builder.Build();
 
